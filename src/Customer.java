@@ -2,12 +2,13 @@ import java.awt.Point;
 
 public class Customer {
 private Point coordinates;
-private int packageWeight, packageUse;
+private int id, packageWeight, packageUse;
 
-public Customer(Point coordinates, int weight, int use){
+public Customer(int id, Point coordinates, int weight, int use){
 	this.coordinates=coordinates;
 	this.packageWeight=weight;
 	this.packageUse=use;
+	this.id=id;
 }
 
 public double distanceTo(Customer other){
@@ -17,5 +18,6 @@ public double distanceTo(Customer other){
 public Point getCoordinates(){return coordinates;}
 public int getWeight(){return packageWeight;}
 public int getUse(){return packageUse;}
-
+public void setId(int id){this.id=id;}
+public int getId(){return this.id;}
 }
