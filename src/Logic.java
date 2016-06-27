@@ -15,6 +15,7 @@ public class Logic {
 		
 		Customer pci = colony.getPCI(this); //YYY
 		
+		
 		//pick customer
 		Customer c=new Customer(1,null,1,1); //XXX TO-DO
 		Customer c1=null; //XXX TO-DO

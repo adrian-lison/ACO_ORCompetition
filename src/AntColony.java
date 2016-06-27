@@ -20,7 +20,9 @@ public class AntColony {
 	}
 	
 	public static void main(String[] args){
-		constructProblem("xx.txt");
+		String fileName="";
+		//Dialog hier einfuegen 
+		constructProblem(fileName);
 		//TODO
 	}
 	
@@ -78,6 +80,7 @@ break;
 								
 								
 								String customerDetailsString = splitted[2];
+								
 								customerDetailsString.replace('(', ''); customerDetails.replace(')','');
 								
 								customerDetails = customerDetailsString.split(",");
