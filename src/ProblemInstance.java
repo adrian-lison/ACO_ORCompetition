@@ -90,6 +90,7 @@ public class ProblemInstance {
 	}
 		
 		
+	
 	public String getName(){return name;}
 	public Customer[] getCostumers(){return customers;}
 	public int getNumberOfCustomers(){return customers.length;}

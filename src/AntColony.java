@@ -26,6 +26,7 @@ public class AntColony {
 		//TODO
 	}
 	
+	
 	private void constructProblem(String fileName){
 		
 		String splitElement="#";
