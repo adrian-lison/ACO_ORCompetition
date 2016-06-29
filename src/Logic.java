@@ -1,41 +1,64 @@
+import java.util.ArrayList;
+import java.awt.geom.Point2D;
 
 public class Logic {
 
-	private int pheromoneWeight;
-	private int heuristicWeight;
+	private double pheromoneWeight;
+	private double heuristicWeight;
 	RandomNumberGenerator random;
-	AntColony colony;
-	
+
 	public Logic(){
 		random = new JavaRandom();
 	}
 	
-	public Customer decideProblem(ProblemInstance problem, Solution currentSolution ){
-		return new Customer(heuristicWeight, null, heuristicWeight, heuristicWeight);
-		
-		Customer pci = colony.getPCI(this); //YYY
-		
-		
-		
-		//pick customer
-		Customer c=new Customer(1,null,1,1); //XXX TO-DO
-		Customer c1=null; //XXX TO-DO
-		Customer c2=null; //XXX TO-DO
-		
-		
-		//calculate economic value
-		double customerValue = c.getUse()-c.getWeight();
-		if(customerValue < c1.distanceTo(c2))
-			System.out.println("Customer c2 kommt nicht infrage, weil zusaetzlicher value geringer ist als der zusaetzliche Weg(50/50 Gewichtung)XXX");
-		
-		double economicValue = (heuristicWeight*customerValue + problem.getPheromoneValue(c1,c2)*pheromoneWeight) / (heuristicWeight+pheromoneWeight);
+	public void setPheromoneWeight(double w){this.pheromoneWeight=w;}
+	public void setHeuristiscWeight(double w){this.heuristicWeight=w;}
 
-		//compare Values
+	public Customer decideProblem(ProblemInstance problem, Solution currentSolution, Heuristic heuristic){
+
+		int maxKunden=50; //TODO dependant on heuristicWeight
+
+
+		ArrayList<Point2D> liste = new ArrayList<Point2D>();
+		
+		int i=1;
+		while(i<problem.getNumberOfCustomers() && ((currentSolution.getCustomerOrder().get(1)==problem.getCustomers()[i]) || !(currentSolution.getCustomerOrder().contains(problem.getCustomers()[i]))) && problem.getCustomers()[i].getWeight()<=problem.getMaxCapacity()-currentSolution.getWeight()){
+			double heuVal = heuristic.getHeuristicValue(currentSolution.getLastCustomer(), problem.getCustomers()[i]);
+			HeuristicComparator c = new HeuristicComparator();
+			liste.sort(c);
+			Point2D punkt = new Point2D.Double(i,heuVal);		
+			if(liste.size()<=maxKunden){
+				liste.add(punkt);
+			}
+			else{
+				if(c.compare(liste.get(0),punkt)<0){
+					liste.remove(0);
+					liste.add(0, punkt);
+				}
+			}
+		}
 		
 		
+		for(Point2D p:liste){
+			double val=p.getY();
+			val = Math.pow(val, heuristicWeight) * Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight);
+		}
+
+		double sum=0;
+		for(Point2D p:liste){
+		sum+= p.getY();
+		}
 		
-		
+		double rand=random.getRandomDouble(sum);
+		int b=-1;
+		sum=0;
+		do{		
+			sum+=liste.get(b).getY();
+			b++;
+			}while(b<liste.size() && sum<rand);
+
+		return problem.getCustomers()[(int)liste.get(b).getX()];
 	}
-	
-	
+
+
 }

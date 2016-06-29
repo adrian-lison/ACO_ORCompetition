@@ -6,8 +6,8 @@ public class JavaRandom extends RandomNumberGenerator {
 
 	Random r = new Random();
 	@Override
-	public int getRandomInt(int range) {
-		return r.nextInt(range); //returns a pseudorandom value between 0 (inclusive) and range
+	public double getRandomDouble(double range) {
+		return r.nextDouble()*range; //returns a pseudorandom value between 0 (inclusive) and range
 	}
 
 	

@@ -1,4 +1,15 @@
 
-public abstract class Heuristic {
-	public abstract double getHeuristicValue(int preNode, int node);
+public class Heuristic {
+	
+	int uW,lW;
+	
+	public Heuristic(int useWeight, int lengthWeight){
+		uW=useWeight;
+		lW=lengthWeight;
+	}
+	
+	public double getHeuristicValue(Customer preNode, Customer node)
+	{
+		//TODO
+	}
 }

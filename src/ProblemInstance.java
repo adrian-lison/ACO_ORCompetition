@@ -22,8 +22,8 @@ public class ProblemInstance {
 
 		//create pheromone history
 		pheromoneHistory = new ArrayList[getNumberOfCustomers()];
-		for(ArrayList n: pheromoneHistory){
-			n = new ArrayList<HistoryEntry>();	}
+		for(int i=0; i<pheromoneHistory.length;i++){
+			pheromoneHistory[i] = new ArrayList<HistoryEntry>();}
 	}
 
 	public void setPheromoneValue(Customer from, Customer to, double value) throws IndexOutOfBoundsException{
@@ -34,12 +34,12 @@ public class ProblemInstance {
 		for(int i=0;i<tos.size();i++){
 			HistoryEntry a  = tos.get(i);
 			if(a.getTo()==to && a.getFrom()==from){ //second condition should be redundant
-				a.setValue(Math.min(max, value));
+				a.setValue(Math.max(min,Math.min(max, value)));
 				a.setRound(this.round);
 				return;
 			}
 		}
-		tos.add(0, new HistoryEntry(from, to, this.round, Math.min(max, value)));
+		tos.add(0, new HistoryEntry(from, to, this.round, Math.max(min,Math.min(max, value))));
 	}
 
 	
@@ -59,13 +59,12 @@ public class ProblemInstance {
 		for(int i=0;i<tos.size();i++){
 			HistoryEntry a  = tos.get(i);
 			if(a.getTo()==to && a.getFrom()==from){ //second condition should be redundant
-				a.setValue(a.getValue()*Math.pow(this.evaporationRate,this.round-a.getRound()));//update level considering evaporation value
-				if(a.getValue()>max) a.setValue(max);
+				a.setValue(Math.max(min, Math.min(max,a.getValue()*Math.pow(this.evaporationRate,this.round-a.getRound()))));//update level considering evaporation value
 				a.setRound(this.round); //updated round
 				return a.getValue(); //updated pheromone value
 			}
 		}
-		double newbieValue=Math.min(max,this.pheromoneInitialValue*Math.pow(this.evaporationRate,this.round));
+		double newbieValue=Math.max(min,Math.min(max,this.pheromoneInitialValue*Math.pow(this.evaporationRate,this.round)));
 		tos.add(0, new HistoryEntry(from, to, this.round, newbieValue)); //create new entry	}
 		return newbieValue;
 	}
@@ -78,21 +77,19 @@ public class ProblemInstance {
 		for(int i=0;i<tos.size();i++){
 			HistoryEntry a  = tos.get(i);
 			if(a.getTo()==to && a.getFrom()==from){ //second condition should be redundant
-				a.setValue(value + a.getValue()*Math.pow(this.evaporationRate,this.round-a.getRound()));//update level considering evaporation value
-				if(a.getValue()>max) a.setValue(max);
+				a.setValue(Math.max(min, Math.min(max, (value + a.getValue()*Math.pow(this.evaporationRate,this.round-a.getRound())))));//update level considering evaporation value
 				a.setRound(this.round); //updated round
 				return;
 			}
 		}
-		double newbieValuePlus=Math.min(max, value+this.pheromoneInitialValue*Math.pow(this.evaporationRate,this.round));
-		tos.add(0, new HistoryEntry(from, to, this.round, newbieValuePlus)); //create new entry	}
-	
+		double newbieValuePlus=Math.max(min, Math.min(max, value+this.pheromoneInitialValue*Math.pow(this.evaporationRate,this.round)));
+		tos.add(0, new HistoryEntry(from, to, this.round, newbieValuePlus)); //create new entry	}	
 	}
 		
 		
 	
 	public String getName(){return name;}
-	public Customer[] getCostumers(){return customers;}
+	public Customer[] getCustomers(){return customers;}
 	public int getNumberOfCustomers(){return customers.length;}
 	public int getMaxCapacity(){return maxCapacity;}
 	public int getRound(){return round;}
@@ -102,6 +99,6 @@ public class ProblemInstance {
 	public void setMax(double max){this.max=max;}
 	public double getMax(){return this.max;}
 	public void setEvaporationRate(double evaporationRate){this.evaporationRate=evaporationRate;}
-	public double getEvaportationRate(){return this.evaporationRate;}
+	public double getEvaporationRate(){return this.evaporationRate;}
 	public void setPheromoneInitialValue(double value){this.pheromoneInitialValue=value;}
 }

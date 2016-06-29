@@ -23,12 +23,6 @@ public class Solution {
 		return length;
 	}
 	
-	/*
-	 * profit is the difference between use and length, which refers to the problem of finding a path that has an optimal profit consisting of the length of the path and the gained use with a 50% ratio each. 
-	 */
-	public int getProfit(){
-		return use-length;
-	}
 	
 	public int getWeight(){
 		return weight;
@@ -42,7 +36,7 @@ public class Solution {
 		this.latestPCI=pci;
 	}
 	
-	public ArrayList<Customer> getCustomerOder(){
+	public ArrayList<Customer> getCustomerOrder(){
 		return customerOrder;
 	}
 	
