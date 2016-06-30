@@ -10,7 +10,7 @@ public class Logic {
 	public Logic(){
 		random = new JavaRandom();
 	}
-	
+
 	public void setPheromoneWeight(double w){this.pheromoneWeight=w;}
 	public void setHeuristiscWeight(double w){this.heuristicWeight=w;}
 
@@ -20,9 +20,17 @@ public class Logic {
 
 
 		ArrayList<Point2D> liste = new ArrayList<Point2D>();
-		
+
 		int i=1;
-		while(i<problem.getNumberOfCustomers() && ((currentSolution.getCustomerOrder().get(1)==problem.getCustomers()[i]) || !(currentSolution.getCustomerOrder().contains(problem.getCustomers()[i]))) && problem.getCustomers()[i].getWeight()<=problem.getMaxCapacity()-currentSolution.getWeight()){
+		while(i<problem.getNumberOfCustomers() && (
+				(
+					(currentSolution.getCustomerOrder().size()>1) && (currentSolution.getCustomerOrder().get(1)==problem.getCustomers()[i])) //if customer is start customer
+					|| 
+					!(currentSolution.getCustomerOrder().contains(problem.getCustomers()[i])) //or if customer i has not yet been visited
+				) 
+				&& 
+				problem.getCustomers()[i].getWeight()<=problem.getMaxCapacity()-currentSolution.getWeight()) //and the package of customer i still fits in the truck
+		{		
 			double heuVal = heuristic.getHeuristicValue(currentSolution.getLastCustomer(), problem.getCustomers()[i]);
 			HeuristicComparator c = new HeuristicComparator();
 			liste.sort(c);
@@ -37,8 +45,8 @@ public class Logic {
 				}
 			}
 		}
-		
-		
+
+
 		for(Point2D p:liste){
 			double val=p.getY();
 			val = Math.pow(val, heuristicWeight) * Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight);
@@ -46,16 +54,16 @@ public class Logic {
 
 		double sum=0;
 		for(Point2D p:liste){
-		sum+= p.getY();
+			sum+= p.getY();
 		}
-		
+
 		double rand=random.getRandomDouble(sum);
 		int b=-1;
 		sum=0;
 		do{		
 			sum+=liste.get(b).getY();
 			b++;
-			}while(b<liste.size() && sum<rand);
+		}while(b<liste.size() && sum<rand);
 
 		return problem.getCustomers()[(int)liste.get(b).getX()];
 	}

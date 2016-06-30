@@ -10,6 +10,8 @@ public class AntColony {
 	private int maxRounds;
 	private ProblemInstance problem;
 	private Solution globalBest;
+	private Logic logic;
+	private Heuristic heuristic;
 	private double maxAdvantageRatio; //Bestmoegliches Nutzen<->Weg Verhaeltnis. Damit koennen spaeter bestimmte Loesungen ausgeschlossen werden.
 
 	//Pareto values
@@ -20,11 +22,16 @@ public class AntColony {
 	private int numberOfAnts;
 	private double evaporationRate;
 	private double pbest;
+	private double heuristicWeight;
+	private double pheromoneWeight;
 
 	public AntColony(){
+		logic = new Logic();
 		evaporationRate=0.95;
 		pbest=0.05;
 		maxAdvantageRatio=0;
+		
+		globalBest = new Solution();
 	}
 
 	public static void main(String[] args){
@@ -37,22 +44,60 @@ public class AntColony {
 		colony1.problem.increasePheromoneValue(colony1.problem.getCustomers()[2], colony1.problem.getCustomers()[5], 3);
 		System.out.println(colony1.maxAdvantageRatio*colony1.problem.getMaxCapacity());
 		colony1.numberOfAnts = colony1.problem.getNumberOfCustomers();
-		
+
 	}
 
 
 	private Solution execute(){
-		//TODO
-		return new Solution();
+		for(int round=0;round<this.maxRounds;round++){
+			problem.setRound(round);
+			Solution b = runRound();
+			if(calcProfit(b)>calcProfit(this.globalBest)){
+				globalBest=b;
+			}
+			updatePheromone(globalTime(round)? globalBest : b); //if global time reward globalBest, else roundBest
+		}
+		System.out.println(globalBest.getUse());
+		return globalBest;
+	}
+
+	/**
+	 * Determines whether the global best or the run best ant is rewarded
+	 * @param round
+	 * @return True for run best, false for global best
+	 */
+	private boolean globalTime(int round){
+		return false;
 	}
 
 	private Solution runRound(){
+		Solution best=new Solution();
+		for(int ameise=1;ameise<=this.numberOfAnts;ameise++){
 
-		//zu Beginn heuristicWeight auf 0 setzen
+			Solution s = new Solution();
+			//Add artificial customer
+			s.addCustomer(problem.getCustomers()[0]);
+			logic.setHeuristiscWeight(0);
+			//Add start costumer
+			Customer next=logic.decideProblem(problem, s, heuristic);
+			s.addCustomer(next);
+			//Add second customer
+			logic.setHeuristiscWeight(this.heuristicWeight);
+			next=logic.decideProblem(problem, s, heuristic);
+			s.addCustomer(next);
+
+			while(next!=s.getCustomerOrder().get(1)){
+				next=logic.decideProblem(problem, s, heuristic);
+				s.addCustomer(next);
+			}
+
+			if(calcProfit(s)>calcProfit(best)){
+				best=s;
+			}
 
 
-
-		return new Solution();
+		}
+		return best;
 	}
 
 	private void updatePheromone(Solution input){
@@ -92,11 +137,12 @@ public class AntColony {
 	 * @return profit of the solution
 	 */
 	private double calcProfit(Solution s){
+		if(s.getLastCustomer()==null){return -42000.0;}
 		double useRatio=this.useWeight/(useWeight+lengthWeight);
 		double lengthRatio=this.lengthWeight/(useWeight+lengthWeight);
 		double profit=s.getUse()*useRatio - s.getLength()*lengthRatio;
 		//TODO
-	//	profit=profit/((maxAdvantageRatio*problem.getMaxCapacity())*useRatio-(maximaleLänge)*lengthRatio); //scale profit
+		//	profit=profit/((maxAdvantageRatio*problem.getMaxCapacity())*useRatio-(maximaleLänge)*lengthRatio); //scale profit
 		return profit;
 	}
 
@@ -185,14 +231,14 @@ public class AntColony {
 				line=br.readLine();
 			}
 
-			
+
 			int k=0;
-			
+
 			//find maximum k and maximum use - weight ratio
 			for(Customer kunde:kunden){
 				if(kunde.getWeight()>k){k=kunde.getWeight();}
 				if(kunde.getWeight()!=0){
-				if(kunde.getUse()/kunde.getWeight()>maxAdvantageRatio){maxAdvantageRatio=kunde.getUse()/kunde.getWeight();}}
+					if(kunde.getUse()/kunde.getWeight()>maxAdvantageRatio){maxAdvantageRatio=kunde.getUse()/kunde.getWeight();}}
 			}
 			k++;
 			//Sort Customers and Construct Problem Instance

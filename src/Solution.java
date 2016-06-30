@@ -51,7 +51,13 @@ public class Solution {
 		this.length+=c.distanceTo(getLastCustomer()); //distance to last customer
 	}
 	
-	public Customer getLastCustomer(){return customerOrder.get(customerOrder.size()-1);}
+	public Customer getLastCustomer(){
+		if(customerOrder.size()>0){
+		return customerOrder.get(customerOrder.size()-1);}
+		else{
+			return null;
+		}
+	}
 	
 	
 }
