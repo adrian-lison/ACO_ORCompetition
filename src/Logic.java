@@ -22,34 +22,50 @@ public class Logic {
 		ArrayList<Point2D> liste = new ArrayList<Point2D>();
 
 		int i=1;
-		while(i<problem.getNumberOfCustomers() && (
-				(
-					(currentSolution.getCustomerOrder().size()>1) && (currentSolution.getCustomerOrder().get(1)==problem.getCustomers()[i])) //if customer is start customer
-					|| 
-					!(currentSolution.getCustomerOrder().contains(problem.getCustomers()[i])) //or if customer i has not yet been visited
-				) 
-				&& 
-				problem.getCustomers()[i].getWeight()<=problem.getMaxCapacity()-currentSolution.getWeight()) //and the package of customer i still fits in the truck
-		{		
-			double heuVal = heuristic.getHeuristicValue(currentSolution.getLastCustomer(), problem.getCustomers()[i]);
-			HeuristicComparator c = new HeuristicComparator();
-			liste.sort(c);
-			Point2D punkt = new Point2D.Double(i,heuVal);		
-			if(liste.size()<=maxKunden){
-				liste.add(punkt);
+
+		if(currentSolution.getCustomerOrder().size()>1){
+			double heuVal=0;
+			if(this.heuristicWeight!=0){
+				heuVal = heuristic.getHeuristicValue(currentSolution.getLastCustomer(), currentSolution.getCustomerOrder().get(1),currentSolution.getCustomerOrder().get(1));
 			}
-			else{
-				if(c.compare(liste.get(0),punkt)<0){
+			Point2D punkt = new Point2D.Double(currentSolution.getFirst(),heuVal);					
+				liste.add(punkt);
+		}
+
+		while(i<problem.getNumberOfCustomers()  &&  problem.getCustomers()[i].getWeight()<=problem.getMaxCapacity()-currentSolution.getWeight()){		
+			if(!(currentSolution.getCustomerOrder().contains(problem.getCustomers()[i]))){
+				double heuVal=0;
+				if(this.heuristicWeight!=0){
+					heuVal = heuristic.getHeuristicValue(currentSolution.getLastCustomer(), problem.getCustomers()[i],currentSolution.getCustomerOrder().get(1));
+				}
+
+				HeuristicComparator c = new HeuristicComparator();
+				liste.sort(c);
+				Point2D punkt = new Point2D.Double(i,heuVal);		
+				if(liste.size()<=maxKunden){
+					liste.add(punkt);
+				}
+				else if(c.compare(liste.get(0),punkt)<0){
 					liste.remove(0);
 					liste.add(0, punkt);
 				}
+
 			}
+			i++;
 		}
 
+		double minVal=0;
+		for(Point2D p:liste){
+			if(p.getY()<minVal){minVal=p.getY();}
+		}
+		for(Point2D p:liste){
+			p.setLocation(p.getX(), p.getY()-Math.min(0, minVal));
+		}
 
 		for(Point2D p:liste){
 			double val=p.getY();
-			val = Math.pow(val, heuristicWeight) * Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight);
+			System.out.println("Heuristic: " + Math.pow(val, heuristicWeight) + " Pheromone: " + Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight));
+			p.setLocation(p.getX(),Math.pow(val, heuristicWeight) * Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight));
 		}
 
 		double sum=0;
@@ -61,12 +77,13 @@ public class Logic {
 		int b=-1;
 		sum=0;
 		do{		
-			sum+=liste.get(b).getY();
 			b++;
+			sum+=liste.get(b).getY();
+
 		}while(b<liste.size() && sum<rand);
 
 		return problem.getCustomers()[(int)liste.get(b).getX()];
 	}
 
-
 }
+
