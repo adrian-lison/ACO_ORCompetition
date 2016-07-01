@@ -73,7 +73,9 @@ public class ProblemInstance {
 		ArrayList<HistoryEntry> tos;
 		if(from.getId()<pheromoneHistory.length) tos = pheromoneHistory[from.getId()];
 		else throw new java.lang.IndexOutOfBoundsException("Customer " + from.getId() + " is not listed in pheromone history.");
-
+		if(from.getId()==to.getId()){
+			System.out.println(from.getId() + " " + to.getId());
+		}
 		for(int i=0;i<tos.size();i++){
 			HistoryEntry a  = tos.get(i);
 			if(a.getTo()==to && a.getFrom()==from){ //second condition should be redundant
@@ -84,6 +86,7 @@ public class ProblemInstance {
 		}
 		double newbieValuePlus=Math.max(min, Math.min(max, value+this.pheromoneInitialValue*Math.pow(this.evaporationRate,this.round)));
 		tos.add(0, new HistoryEntry(from, to, this.round, newbieValuePlus)); //create new entry	}	
+		
 	}
 		
 		

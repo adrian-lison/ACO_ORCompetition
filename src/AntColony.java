@@ -58,9 +58,7 @@ public class AntColony {
 	}
 	
 	private void run(){
-		System.out.println("0^0 = " + Math.pow(0, 0));
-		//problem.increasePheromoneValue(problem.getCustomers()[2], problem.getCustomers()[5], 3);
-		System.out.println(maxAdvantageRatio*problem.getMaxCapacity());
+		
 		numberOfAnts = problem.getNumberOfCustomers();
 		logic.setPheromoneWeight(this.pheromoneWeight);
 		logic.setHeuristiscWeight(this.heuristicWeight);
@@ -138,6 +136,9 @@ public class AntColony {
 		for(int i=0;i<input.getCustomerOrder().size()-1;i++){
 			problem.increasePheromoneValue(input.getCustomerOrder().get(i), input.getCustomerOrder().get(i+1), calcProfit(input));
 			m.pheromone("Pheromonwert von " + input.getCustomerOrder().get(i).getId() + " zu " + input.getCustomerOrder().get(i+1).getId() + ": " + problem.getPheromoneValue(input.getCustomerOrder().get(i), input.getCustomerOrder().get(i+1)));
+			if(input.getCustomerOrder().get(i).getId()==input.getCustomerOrder().get(i+1).getId()){
+				System.out.println("");
+			}
 		}
 	}
 
