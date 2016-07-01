@@ -3,6 +3,7 @@ import java.awt.geom.Point2D;
 
 public class Logic {
 
+	private MessageControl m = new MessageControl();
 	private double pheromoneWeight;
 	private double heuristicWeight;
 	RandomNumberGenerator random;
@@ -64,7 +65,7 @@ public class Logic {
 
 		for(Point2D p:liste){
 			double val=p.getY();
-			System.out.println("Heuristic: " + Math.pow(val, heuristicWeight) + " Pheromone: " + Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight));
+			m.heuristic(p.getX() + ": Heuristic: " + Math.pow(val, heuristicWeight) + " Pheromone: " + Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight));
 			p.setLocation(p.getX(),Math.pow(val, heuristicWeight) * Math.pow(problem.getPheromoneValue(currentSolution.getLastCustomer(), problem.getCustomers()[(int)p.getX()]), pheromoneWeight));
 		}
 
@@ -81,7 +82,9 @@ public class Logic {
 			sum+=liste.get(b).getY();
 
 		}while(b<liste.size() && sum<rand);
-
+		
+		if(currentSolution.getCustomerOrder().size()==1){currentSolution.setFirst((int)liste.get(b).getX());}
+		
 		return problem.getCustomers()[(int)liste.get(b).getX()];
 	}
 

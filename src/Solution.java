@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Solution {
-
+	private MessageControl m = new MessageControl();
 	ArrayList<Customer> customerOrder;
 	private int latestPCI; 	//index of the latest potential customer
 	private int use;    	//Overall cumulated use of packages
@@ -46,10 +46,10 @@ public class Solution {
 	 * Adds a customer to the Order of Customers and updated statistics
 	 * @param c Customer to be added
 	 */
-	public void addCustomer(Customer c){
+	public void addCustomer(Customer c){	
+		if(customerOrder.size()>1) this.length+=c.distanceTo(getLastCustomer()); //distance to last customer	
 		this.customerOrder.add(c);
-		this.length+=c.distanceTo(getLastCustomer()); //distance to last customer	
-		if(customerOrder.size()>1 && customerOrder.get(1)!=c){	
+		if((customerOrder.size()>2 && customerOrder.get(1)!=c) || customerOrder.size()==2){	
 			this.weight += c.getWeight();
 			this.use+= c.getUse();
 		}
@@ -71,5 +71,12 @@ public class Solution {
 	
 	public void setFirst(int value){this.firstIndex=value;}
 
+	public String print(){
+		String s="";
+		for(int i=1;i<customerOrder.size();i++){
+			s += customerOrder.get(i).getId() + " - ";
+		}
+		return s.substring(0,s.length()-3);
+	}
 
 }
