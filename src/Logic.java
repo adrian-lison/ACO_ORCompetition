@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.awt.geom.Point2D;
 
 public class Logic {
@@ -42,6 +43,16 @@ public class Logic {
 
 				HeuristicComparator c = new HeuristicComparator();
 				liste.sort(c);
+				Point2D[] p= new Point2D[liste.size()];
+				for(int f=0;f<p.length;f++){
+					p[f]=liste.get(f);
+				}
+							
+				mergeSort(p, 0, p.length-1);
+				liste=new ArrayList<Point2D>();
+				for(Point2D u : p){
+					liste.add(0, u);
+				}
 				Point2D punkt = new Point2D.Double(i,heuVal);		
 				if(liste.size()<=maxKunden){
 					liste.add(punkt);
@@ -88,5 +99,39 @@ public class Logic {
 		return problem.getCustomers()[(int)liste.get(b).getX()];
 	}
 
+	private static void mergeSort(Point2D[] a, int L, int R) {
+        int M = (L + R) / 2;
+        if (L < M){
+        	mergeSort(a, L, M);
+        }
+        if (M + 1 < R){
+        	mergeSort(a, M + 1, R);
+        }
+        merge(a, L, M, R);
+    }
+    
+    private static void merge(Point2D[] a, int L, int M, int R) {
+    	Point2D[] b = new Point2D[R-L+1];
+    	int i = L;
+    	int j = M + 1;
+    	int k;
+    	for (k = L; k <= R; k++){
+    		if ((i > M) || ((j <= R) && (a[j].getY() < a[i].getY()))) {
+    			b[k-L] = a[j];
+    			j = j + 1;
+    		} 
+    		else {
+    			b[k-L] = a[i];
+    			i = i + 1;
+    		}
+    		
+    	}
+    	for (k = L; k <= R; k++){
+    	
+    		a[k] = b[k-L];
+    		
+    	}
+    }
+	
 }
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class AntColony {
 
-	private int maxRounds;
+	
 	private ProblemInstance problem;
 	private Solution globalBest;
 	private Logic logic;
@@ -30,61 +30,63 @@ public class AntColony {
 	private double pbest;
 	private double heuristicWeight;
 	private double pheromoneWeight;
-
+	private int maxRounds;
+	
+	public void setAnts(int value){numberOfAnts=value;}
+	public void setMaxRounds(int value){this.maxRounds=value;}
+	public void setUseWeight(double value){this.useWeight=value;}
+	public void setLengthWeight(double value){this.lengthWeight=value;}
+	
+	public boolean stop=false;
+	
 	public AntColony(){
+		
 		logic = new Logic();
 		evaporationRate=0.95;
 		pbest=0.05;
 		maxAdvantageRatio=0;
 		biggestUse=0;
-		heuristicWeight=1;
+		heuristicWeight=1.5;
 		pheromoneWeight=1;
 		m = new MessageControl();
 		
-		maxRounds=20;
+		maxRounds=200;
 		heuristic = new Heuristic(this.useWeight, this.lengthWeight);
 		logic = new Logic();
 		globalBest = new Solution();
 	}
 
-	public static void main(String[] args){
-		String fileName="C:/Users/Adrian/Google Drive/OR Competition/Probleminstanzen/ttp_3_50.txt";
-		//Dialog hier einfuegen 
-
-
-		AntColony colony1 = new AntColony();
-		colony1.constructProblem(fileName);
-		colony1.run();
-	}
 	
-	private void run(){
+	
+	public Solution run(){
 		
-		numberOfAnts = problem.getNumberOfCustomers();
+		numberOfAnts = Math.min(50,problem.getNumberOfCustomers());
 		logic.setPheromoneWeight(this.pheromoneWeight);
 		logic.setHeuristiscWeight(this.heuristicWeight);
 		problem.setEvaporationRate(this.evaporationRate);
-		execute();
+		return execute();
 	}
 
 
-	private Solution execute(){
+	public Solution execute(){
 		boolean init=true;
 		problem.setPheromoneInitialValue(1.0);
 				
-		for(int round=0;round<this.maxRounds;round++){
+		for(int round=0;round<this.maxRounds && !stop ;round++){
 			problem.setRound(round);
 			
 			Solution b = runRound();
 			if(calcProfit(b)>calcProfit(this.globalBest)){
+				m.finalresult("Bisher beste Lösung: " + calcProfit(b)*this.bigDivider + "(Gewichteter Profit) - " + " - Nutzen: " + b.getUse() + " - Weg: " + b.getLength() + " - Gewicht: " + b.getWeight() + " Tour: " + b.print());
 				globalBest=b;
 			}
 			problem.setMax(calcMax());
 			problem.setMin(calcMin());
 			if(init) {problem.setPheromoneInitialValue(calcMax()); init=false;}
 			updatePheromone(globalTime(round)? globalBest : b); //if global time reward globalBest, else roundBest
-			m.paragraph();
+			
 		}
-		m.finalresult("Fertige Lösung: " + calcProfit(globalBest)*this.bigDivider + "(Profit) - " + globalBest.print() + " - Nutzen: " + globalBest.getUse() + " - Weg: " + globalBest.getLength() + " - Gewicht: " + globalBest.getWeight());
+		m.finalresult("Fertige Lösung: " + calcProfit(globalBest)*this.bigDivider + "(Gewichteter Profit) - " + " - Nutzen: " + globalBest.getUse() + " - Weg: " + globalBest.getLength() + " - Gewicht: " + globalBest.getWeight() + " Tour: " + globalBest.print());
 		return globalBest;
 	}
 
@@ -99,7 +101,7 @@ public class AntColony {
 
 	private Solution runRound(){
 		Solution best=new Solution();
-		m.general("Neue Runde:");
+		
 		for(int ameise=1;ameise<=this.numberOfAnts;ameise++){
 			
 			Solution s = new Solution();
@@ -123,12 +125,12 @@ public class AntColony {
 			
 			if(calcProfit(s)>calcProfit(best)){
 				best=s;
+				
 			}
-			m.finalresultround(s.print());
-
+			
+			m.finalresultround(s.print()+"\n");
 
 		}
-		m.finalresult("\nBeste Lösung: " + calcProfit(best) + "(Profit) - " + best.print() + " - Nutzen: " + best.getUse() + " - Weg: " + best.getLength() + " - Gewicht: " + best.getWeight());
 		return best;
 	}
 
@@ -136,9 +138,6 @@ public class AntColony {
 		for(int i=0;i<input.getCustomerOrder().size()-1;i++){
 			problem.increasePheromoneValue(input.getCustomerOrder().get(i), input.getCustomerOrder().get(i+1), calcProfit(input));
 			m.pheromone("Pheromonwert von " + input.getCustomerOrder().get(i).getId() + " zu " + input.getCustomerOrder().get(i+1).getId() + ": " + problem.getPheromoneValue(input.getCustomerOrder().get(i), input.getCustomerOrder().get(i+1)));
-			if(input.getCustomerOrder().get(i).getId()==input.getCustomerOrder().get(i+1).getId()){
-				System.out.println("");
-			}
 		}
 	}
 
@@ -183,7 +182,7 @@ public class AntColony {
 
 
 
-	private void constructProblem(String fileName){
+	public void constructProblem(String fileName){
 
 		String probName="";
 		int maxCap=0;
@@ -247,11 +246,11 @@ public class AntColony {
 
 						Point2D punkt = new Point2D.Double(Double.parseDouble(coordinates2[0]),Double.parseDouble(coordinates2[1].split("\\)")[0]));
 						
-						System.out.print("x:" + punkt.getX() + " y:" + punkt.getY() + "  -  ");
+						System.out.print("(" + punkt.getX() + "," + punkt.getY() + ")");
 
 						String customerDetailsString = splitted[2];
 						String[] customerDetails = customerDetailsString.split(",");
-						System.out.print("weight:" + customerDetails[0] + " profit:" + customerDetails[1].split("\\)")[0]);
+						System.out.print(" (" + customerDetails[0] + "," + customerDetails[1].split("\\)")[0] + ")");
 
 						Customer kunde = new Customer(id,punkt,Integer.parseInt(customerDetails[0]),Integer.parseInt(customerDetails[1].split("\\)")[0]));
 						kunden[id] = kunde;
